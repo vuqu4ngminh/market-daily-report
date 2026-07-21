@@ -1,0 +1,49 @@
+name: Market Daily Report
+
+on:
+  # Run every 2 hours starting from 7 AM GMT+7
+  # 7 AM, 9 AM, 11 AM, 1 PM, 3 PM, 5 PM, 7 PM, 9 PM, 11 PM, 1 AM, 3 AM, 5 AM (GMT+7)
+  # Corresponds to 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 UTC
+  schedule:
+    - cron: "0 0,2,4,6,8,10,12,14,16,18,20,22 * * *"
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build TypeScript
+        run: npm run build
+      
+      - name: Run Market Report
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+          LOG_LEVEL: info
+        run: npm start
+      
+      - name: Upload logs (if failed)
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: execution-logs
+          retention-days: 7
+          if-no-files-found: ignore
