@@ -8,9 +8,11 @@ function formatPrice(item: PriceData | undefined): string {
 }
 
 export function formatTelegramMessage(data: MarketData): string {
-  const today = new Date().toLocaleDateString("vi-VN");
+  // Format date in Vietnam timezone (GMT+7)
+  const vietnamDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
+    .toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
 
-  return `*CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI - ${today}*
+  return `*CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI - ${vietnamDate}*
 
 *Chứng khoán Mỹ:*
 S&P 500: ${formatPrice(data.SPX)}

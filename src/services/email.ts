@@ -23,7 +23,13 @@ export async function sendEmail(
       },
     });
 
-    const today = new Date().toLocaleString("vi-VN");
+    // Format date in Vietnam timezone (GMT+7)
+    const vietnamDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0]; // YYYY-MM-DD
+    const vietnamTime = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
+      .toLocaleTimeString("vi-VN"); // HH:MM:SS
+    const today = `${vietnamDate} ${vietnamTime}`;
 
     await transporter.sendMail({
       from: emailUser,
