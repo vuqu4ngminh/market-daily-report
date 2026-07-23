@@ -67,7 +67,18 @@ export function formatEmailMessage(data: MarketData): string {
       
       <hr style="margin-top: 30px; border: none; border-top: 1px solid #ddd;">
       <p style="font-size: 12px; color: #7f8c8d; margin-top: 20px;">
-        Cập nhật: ${new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
+        Cập nhật: ${new Intl.DateTimeFormat("vi-VN", {
+          timeZone: "Asia/Ho_Chi_Minh",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+          .format(new Date())
+          .replace(",", "")
+          .replace(/\//g, "-")}
       </p>
     </body>
     </html>

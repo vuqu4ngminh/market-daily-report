@@ -8,9 +8,14 @@ function formatPrice(item: PriceData | undefined): string {
 }
 
 export function formatTelegramMessage(data: MarketData): string {
-  // Format date in Vietnam timezone (GMT+7)
-  const vietnamDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
-    .toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+  const vietnamDate = new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+    .format(new Date())
+    .replace(/\//g, "-");
 
   return `*CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI - ${vietnamDate}*
 

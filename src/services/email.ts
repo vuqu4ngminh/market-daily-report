@@ -23,13 +23,18 @@ export async function sendEmail(
       },
     });
 
-    // Format date in Vietnam timezone (GMT+7)
-    const vietnamDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0]; // YYYY-MM-DD
-    const vietnamTime = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
-      .toLocaleTimeString("vi-VN"); // HH:MM:SS
-    const today = `${vietnamDate} ${vietnamTime}`;
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    const formatted = formatter.format(now).replace(",", "");
+    const today = formatted.replace(/\//g, "-");
 
     await transporter.sendMail({
       from: emailUser,
