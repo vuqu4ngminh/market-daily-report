@@ -23,8 +23,13 @@ export async function sendTelegram(
     });
 
     logger.info("✅ Telegram message sent successfully");
-  } catch (error) {
+  } catch (error: any) {
     logger.error("❌ Failed to send Telegram message:", error);
-    throw error;
+    throw {
+      provider: "telegram",
+      status: error.response?.status,
+      code: error.code,
+      message: "Telegram request failed"
+    };
   }
 }
