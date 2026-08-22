@@ -37,6 +37,9 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+          DNSE_API_KEY: ${{ secrets.DNSE_API_KEY }}
+          DNSE_API_SECRET: ${{ secrets.DNSE_API_SECRET }}
+          DNSE_API_VERSION: "2026-05-07"
           LOG_LEVEL: info
         run: npm start
       

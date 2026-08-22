@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { formatTelegramMessage } from "../src/formatters/telegram.js";
+import {
+  formatTelegramMessage,
+  formatVn100TelegramMessage,
+} from "../src/formatters/telegram.js";
 import { formatEmailMessage } from "../src/formatters/email.js";
 import { MarketData } from "../src/services/marketData.js";
 
@@ -44,6 +47,10 @@ const mockMarketData: MarketData = {
     previousClose: 2450.0,
     percent_change: "+2.04%",
   },
+  vietnam: {
+    VNINDEX: { close: 1669.38, previousClose: 1662.54, percent_change: "+0.41%" },
+    VN30: { close: 1800.5, previousClose: 1790, percent_change: "+0.59%" },
+  },
 };
 
 const mockMarketDataWithLosses: MarketData = {
@@ -60,7 +67,9 @@ describe("Formatters", () => {
     it("should format market data for Telegram", () => {
       const message = formatTelegramMessage(mockMarketData);
 
-      expect(message).toContain("CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI");
+      expect(message).toContain("CẬP NHẬT THỊ TRƯỜNG");
+      expect(message).toContain("VN-Index");
+      expect(message).toContain("1.669,38 điểm");
       expect(message).toContain("S&P 500");
       expect(message).toContain("Dow Jones");
       expect(message).toContain("Nasdaq");
@@ -81,7 +90,7 @@ describe("Formatters", () => {
     it("should have proper sections", () => {
       const message = formatTelegramMessage(mockMarketData);
 
-      expect(message).toContain("Chứng khoán Mỹ");
+      expect(message).toContain("Chỉ số chứng khoán");
       expect(message).toContain("Vàng & Dầu");
       expect(message).toContain("Cryptocurrency");
       expect(message).toContain("Bitcoin");
@@ -92,7 +101,9 @@ describe("Formatters", () => {
     it("should format market data for Email", () => {
       const message = formatEmailMessage(mockMarketData);
 
-      expect(message).toContain("CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI");
+      expect(message).toContain("CẬP NHẬT THỊ TRƯỜNG");
+      expect(message).toContain("Chỉ số chứng khoán");
+      expect(message).toContain("1.669,38 điểm");
       expect(message).toContain("<!DOCTYPE html>");
       expect(message).toContain("color");
     });
@@ -130,6 +141,20 @@ describe("Formatters", () => {
       expect(message).toContain("<h3>");
       expect(message).toContain("<p>");
       expect(message).toContain("</p>");
+    });
+  });
+
+  describe("formatVn100TelegramMessage", () => {
+    it("should format VN100 stocks as a separate VND message", () => {
+      const message = formatVn100TelegramMessage({
+        VHM: { close: 95, previousClose: 96, percent_change: "-1.04%" },
+        SHB: { close: 12.5, previousClose: 12.3, percent_change: "+1.63%" },
+      });
+
+      expect(message).toContain("GIÁ CỔ PHIẾU VN100");
+      expect(message).toContain("SHB: 12.500");
+      expect(message).toContain("VHM: 95.000");
+      expect(message).toContain("₫");
     });
   });
 });

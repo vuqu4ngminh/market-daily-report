@@ -11,6 +11,23 @@ function formatPrice(item: PriceData | undefined): string {
   return `${item.close.toFixed(2)} <span style="color:${color}">(${item.percent_change})</span>`;
 }
 
+function changeColor(item: PriceData): string {
+  return parseFloat(item.percent_change) >= 0 ? "green" : "red";
+}
+
+function formatVietnamIndex(item: PriceData | undefined): string {
+  if (!item || !item.close) {
+    return "N/A";
+  }
+
+  const formattedValue = new Intl.NumberFormat("vi-VN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(item.close);
+
+  return `${formattedValue} điểm <span style="color:${changeColor(item)}">(${item.percent_change})</span>`;
+}
+
 export function formatEmailMessage(data: MarketData): string {
   return `
     <!DOCTYPE html>
@@ -43,10 +60,12 @@ export function formatEmailMessage(data: MarketData): string {
       </style>
     </head>
     <body>
-      <h2>CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI</h2>
-      
-      <h3>📈 Chứng khoán Mỹ</h3>
+      <h2>CẬP NHẬT THỊ TRƯỜNG</h2>
+
+      <h3>📈 Chỉ số chứng khoán</h3>
       <p>
+        VN-Index: ${formatVietnamIndex(data.vietnam?.VNINDEX)}<br>
+        VN30: ${formatVietnamIndex(data.vietnam?.VN30)}<br>
         S&P 500: ${formatPrice(data.SPX)}<br>
         Dow Jones: ${formatPrice(data.DJI)}<br>
         Nasdaq: ${formatPrice(data.IXIC)}

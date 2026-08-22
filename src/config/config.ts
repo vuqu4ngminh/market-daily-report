@@ -15,6 +15,12 @@ export interface Config {
   logging: {
     level: string;
   };
+  dnse: {
+    apiKey: string;
+    apiSecret: string;
+    baseUrl: string;
+    apiVersion: string;
+  };
   testMode: boolean;
 }
 
@@ -25,6 +31,8 @@ function validateEnv(): void {
     "EMAIL_USER",
     "EMAIL_PASSWORD",
     "EMAIL_RECIPIENT",
+    "DNSE_API_KEY",
+    "DNSE_API_SECRET",
   ];
 
   const missing = requiredVars.filter((v) => !process.env[v]);
@@ -49,6 +57,12 @@ export function getConfig(): Config {
     },
     logging: {
       level: process.env.LOG_LEVEL || "info",
+    },
+    dnse: {
+      apiKey: process.env.DNSE_API_KEY!,
+      apiSecret: process.env.DNSE_API_SECRET!,
+      baseUrl: process.env.DNSE_BASE_URL || "https://openapi.dnse.com.vn",
+      apiVersion: process.env.DNSE_API_VERSION || "2026-05-07",
     },
     testMode: process.env.TEST_MODE === "true",
   };

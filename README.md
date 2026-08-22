@@ -4,7 +4,7 @@ Automatic market daily report sender via Telegram and Email using GitHub Actions
 
 ## Features
 
-- 📊 Fetch real-time market data from Yahoo Finance API
+- 📊 Fetch market data from Yahoo Finance and DNSE LightSpeed API
 - 💬 Send formatted messages to Telegram
 - 📧 Send HTML formatted emails
 - 🤖 Automated scheduling via GitHub Actions
@@ -61,6 +61,8 @@ Fill in your credentials:
 - `EMAIL_USER`: Email account for sending (Gmail recommended)
 - `EMAIL_PASSWORD`: Email account password or app password
 - `EMAIL_RECIPIENT`: Email address to send reports to
+- `DNSE_API_KEY`: DNSE LightSpeed API key
+- `DNSE_API_SECRET`: DNSE LightSpeed API secret
 
 ### 3. Build
 
@@ -91,8 +93,6 @@ npm run dev
 
 2. The workflow will automatically run every 2 hours starting from 7 AM GMT+7:
    - **Schedule:** 7 AM → 9 AM → 11 AM → 1 PM → 3 PM → 5 PM → 7 PM → 9 PM → 11 PM → 1 AM → 3 AM → 5 AM (GMT+7)
-   - **Total:** 12 times per day
-   - **Cost:** Unlimited (FREE for public repos)
 
 ## Development
 
@@ -117,6 +117,8 @@ npm run format
 ## Features Details
 
 ### Market Data
+- VN-Index and VN30 (DNSE, included with US stock indices)
+- All current VN100 constituents (DNSE, separate Telegram message)
 - S&P 500 (^GSPC)
 - Dow Jones (^DJI)
 - Nasdaq (^IXIC)
@@ -124,6 +126,13 @@ npm run format
 - Brent Oil (BZ=F)
 - WTI Oil (CL=F)
 - Bitcoin (BTC-USD)
+
+### VN100 Telegram Report
+
+- Production: prepared only from 09:00 through 14:59 (`Asia/Ho_Chi_Minh`).
+- Test mode: always fetches and sends the full report regardless of the current time. Telegram messages and email subjects are prefixed with `[TEST]`.
+- VN100 constituents are queried dynamically from DNSE using `indexName=VN100`.
+- The GitHub Actions schedule is unchanged; the application applies the time condition at runtime.
 
 ### Message Format
 

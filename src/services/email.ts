@@ -8,12 +8,6 @@ export async function sendEmail(
   htmlBody: string,
   testMode: boolean = false
 ): Promise<void> {
-  if (testMode) {
-    logger.info("TEST MODE: Email prepared (not sent)");
-    logger.debug({ to: emailRecipient }, "Email recipient");
-    return;
-  }
-
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -39,11 +33,13 @@ export async function sendEmail(
     await transporter.sendMail({
       from: emailUser,
       to: emailRecipient,
-      subject: `CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI ${today}`,
+      subject: `${testMode ? "[TEST] " : ""}CẬP NHẬT THỊ TRƯỜNG ${today}`,
       html: htmlBody,
     });
 
-    logger.info("✅ Email sent successfully");
+    logger.info(
+      testMode ? "✅ TEST MODE: Email sent successfully" : "✅ Email sent successfully"
+    );
   } catch (error) {
     logger.error("❌ Failed to send email:", error);
     throw error;
