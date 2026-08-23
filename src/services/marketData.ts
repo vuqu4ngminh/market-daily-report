@@ -7,10 +7,7 @@ export interface MarketData {
   GOLD: PriceData;
   BTC: PriceData;
   ETH: PriceData;
-  vietnam?: Partial<Record<VietnamSymbol, PriceData>>;
 }
-
-export type VietnamSymbol = "VNINDEX" | "VN30";
 
 export interface PriceData {
   close: number;

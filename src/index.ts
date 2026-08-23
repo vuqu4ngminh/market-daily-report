@@ -2,14 +2,9 @@ import { getConfig } from "./config/config.js";
 import { getMarketData } from "./services/marketData.js";
 import { sendTelegram } from "./services/telegram.js";
 import { sendEmail } from "./services/email.js";
-import {
-  formatTelegramMessage,
-  formatVn100TelegramMessage,
-} from "./formatters/telegram.js";
+import { formatTelegramMessage } from "./formatters/telegram.js";
 import { formatEmailMessage } from "./formatters/email.js";
 import logger from "./utils/logger.js";
-import { getDnseMarketData, getVn100MarketData } from "./services/dnse.js";
-import { shouldPrepareVn100Report } from "./utils/vietnamMarketHours.js";
 
 async function main(): Promise<void> {
   try {
@@ -17,12 +12,8 @@ async function main(): Promise<void> {
 
     const config = getConfig();
 
-    logger.info("📡 Fetching market data from Yahoo Finance and DNSE...");
-    const [marketData, vietnam] = await Promise.all([
-      getMarketData(),
-      getDnseMarketData(config.dnse),
-    ]);
-    marketData.vietnam = vietnam;
+    logger.info("📡 Fetching market data from Yahoo Finance...");
+    const marketData = await getMarketData();
     logger.info("✅ Market data fetched successfully");
 
     const telegramMessage = formatTelegramMessage(marketData);
@@ -35,19 +26,6 @@ async function main(): Promise<void> {
       telegramMessage,
       config.testMode
     );
-
-    if (shouldPrepareVn100Report(config.testMode)) {
-      logger.info("📡 Fetching VN100 prices from DNSE...");
-      const vn100 = await getVn100MarketData(config.dnse);
-      await sendTelegram(
-        config.telegram.token,
-        config.telegram.chatId,
-        formatVn100TelegramMessage(vn100),
-        config.testMode
-      );
-    } else {
-      logger.info("⏭️ Skipping VN100 report outside 09:00-15:00 Asia/Ho_Chi_Minh");
-    }
 
     logger.info("📧 Sending Email...");
     await sendEmail(
