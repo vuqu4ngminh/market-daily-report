@@ -30,11 +30,6 @@ jobs:
       - name: Build TypeScript
         run: npm run build
       
-      - name: Diagnose DNSE connectivity
-        run:
-          getent hosts openapi.dnse.com.vn
-          curl -4 -v --connect-timeout 30 https://openapi.dnse.com.vn/ || true
-
       - name: Run Market Report
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
