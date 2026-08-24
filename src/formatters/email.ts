@@ -11,6 +11,14 @@ function formatPrice(item: PriceData | undefined): string {
   return `${item.close.toFixed(2)} <span style="color:${color}">(${item.percent_change})</span>`;
 }
 
+function sectionTitle(title: string, items: Array<PriceData | undefined>): string {
+  const knownStatuses = items
+    .map((item) => item?.isMarketOpen)
+    .filter((status): status is boolean => typeof status === "boolean");
+  const isClosed = knownStatuses.length > 0 && knownStatuses.every((status) => !status);
+  return `${title}${isClosed ? " (đóng cửa)" : ""}`;
+}
+
 export function formatEmailMessage(data: MarketData): string {
   return `
     <!DOCTYPE html>
@@ -45,14 +53,14 @@ export function formatEmailMessage(data: MarketData): string {
     <body>
       <h2>CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI</h2>
       
-      <h3>📈 Chứng khoán Mỹ</h3>
+      <h3>📈 ${sectionTitle("Chứng khoán Mỹ", [data.SPX, data.DJI, data.IXIC])}</h3>
       <p>
         S&P 500: ${formatPrice(data.SPX)}<br>
         Dow Jones: ${formatPrice(data.DJI)}<br>
         Nasdaq: ${formatPrice(data.IXIC)}
       </p>
       
-      <h3>💰 Vàng & Dầu</h3>
+      <h3>💰 ${sectionTitle("Vàng & Dầu", [data.GOLD, data.BRENT, data.WTI])}</h3>
       <p>
         Vàng: ${formatPrice(data.GOLD)}<br>
         Dầu Brent: ${formatPrice(data.BRENT)}<br>

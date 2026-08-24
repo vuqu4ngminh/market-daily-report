@@ -7,6 +7,14 @@ function formatPrice(item: PriceData | undefined): string {
   return `${item.close.toFixed(2)} (${item.percent_change})`;
 }
 
+function sectionTitle(title: string, items: Array<PriceData | undefined>): string {
+  const knownStatuses = items
+    .map((item) => item?.isMarketOpen)
+    .filter((status): status is boolean => typeof status === "boolean");
+  const isClosed = knownStatuses.length > 0 && knownStatuses.every((status) => !status);
+  return `${title}${isClosed ? " (đóng cửa)" : ""}`;
+}
+
 export function formatTelegramMessage(data: MarketData): string {
   const vietnamDate = new Intl.DateTimeFormat("vi-VN", {
     timeZone: "Asia/Ho_Chi_Minh",
@@ -19,12 +27,12 @@ export function formatTelegramMessage(data: MarketData): string {
 
   return `*CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI - ${vietnamDate}*
 
-*Chứng khoán Mỹ:*
+*${sectionTitle("Chứng khoán Mỹ", [data.SPX, data.DJI, data.IXIC])}:*
 S&P 500: ${formatPrice(data.SPX)}
 Dow Jones: ${formatPrice(data.DJI)}
 Nasdaq: ${formatPrice(data.IXIC)}
 
-*Vàng & Dầu:*
+*${sectionTitle("Vàng & Dầu", [data.GOLD, data.BRENT, data.WTI])}:*
 Vàng: ${formatPrice(data.GOLD)}
 Dầu Brent: ${formatPrice(data.BRENT)}
 Dầu WTI: ${formatPrice(data.WTI)}

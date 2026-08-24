@@ -86,6 +86,22 @@ describe("Formatters", () => {
       expect(message).toContain("Cryptocurrency");
       expect(message).toContain("Bitcoin");
     });
+
+    it("should mark only a fully closed section in its title", () => {
+      const message = formatTelegramMessage({
+        ...mockMarketData,
+        SPX: { ...mockMarketData.SPX, isMarketOpen: false },
+        DJI: { ...mockMarketData.DJI, isMarketOpen: false },
+        IXIC: { ...mockMarketData.IXIC, isMarketOpen: false },
+        GOLD: { ...mockMarketData.GOLD, isMarketOpen: true },
+        BRENT: { ...mockMarketData.BRENT, isMarketOpen: false },
+        WTI: { ...mockMarketData.WTI, isMarketOpen: false },
+      });
+
+      expect(message).toContain("*Chứng khoán Mỹ (đóng cửa):*");
+      expect(message).toContain("*Vàng & Dầu:*");
+      expect(message).not.toContain("S&P 500 (đóng cửa)");
+    });
   });
 
   describe("formatEmailMessage", () => {
@@ -130,6 +146,20 @@ describe("Formatters", () => {
       expect(message).toContain("<h3>");
       expect(message).toContain("<p>");
       expect(message).toContain("</p>");
+    });
+
+    it("should mark closed sections in email headings", () => {
+      const closedData: MarketData = {
+        ...mockMarketData,
+        GOLD: { ...mockMarketData.GOLD, isMarketOpen: false },
+        BRENT: { ...mockMarketData.BRENT, isMarketOpen: false },
+        WTI: { ...mockMarketData.WTI, isMarketOpen: false },
+      };
+
+      const message = formatEmailMessage(closedData);
+
+      expect(message).toContain("<h3>💰 Vàng & Dầu (đóng cửa)</h3>");
+      expect(message).not.toContain("Vàng (đóng cửa)");
     });
   });
 });

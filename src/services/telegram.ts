@@ -7,29 +7,32 @@ export async function sendTelegram(
   message: string,
   testMode: boolean = false
 ): Promise<void> {
-  if (testMode) {
-    logger.info("TEST MODE: Telegram message prepared (not sent)");
-    logger.debug({ message }, "Message content");
-    return;
-  }
-
   try {
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const outgoingMessage = testMode ? `*[TEST]*\n${message}` : message;
 
-    const response = await axios.post(url, {
+    await axios.post(url, {
       chat_id: chatId,
-      text: message,
+      text: outgoingMessage,
       parse_mode: "Markdown",
     });
 
-    logger.info("✅ Telegram message sent successfully");
-  } catch (error: any) {
+    logger.info(
+      testMode
+        ? "✅ TEST MODE: Telegram message sent successfully"
+        : "✅ Telegram message sent successfully"
+    );
+  } catch (error: unknown) {
     logger.error("❌ Failed to send Telegram message:", error);
+    const requestError = error as {
+      response?: { status?: number };
+      code?: string;
+    };
     throw {
       provider: "telegram",
-      status: error.response?.status,
-      code: error.code,
-      message: "Telegram request failed"
+      status: requestError.response?.status,
+      code: requestError.code,
+      message: "Telegram request failed",
     };
   }
 }

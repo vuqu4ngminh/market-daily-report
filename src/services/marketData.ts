@@ -13,6 +13,7 @@ export interface PriceData {
   close: number;
   previousClose: number;
   percent_change: string;
+  isMarketOpen?: boolean;
 }
 
 interface YahooChartResponse {
@@ -21,6 +22,12 @@ interface YahooChartResponse {
       meta: {
         regularMarketPrice: number;
         previousClose: number;
+        currentTradingPeriod?: {
+          regular?: {
+            start: number;
+            end: number;
+          };
+        };
       };
     }>;
   };
@@ -38,6 +45,8 @@ async function fetchYahooData(symbol: string): Promise<PriceData> {
 
     const json = (await response.json()) as YahooChartResponse;
     const meta = json.chart.result[0].meta;
+    const regularSession = meta.currentTradingPeriod?.regular;
+    const now = Date.now() / 1000;
 
     const percentChange =
       ((meta.regularMarketPrice - meta.previousClose) / meta.previousClose) * 100;
@@ -46,6 +55,9 @@ async function fetchYahooData(symbol: string): Promise<PriceData> {
       close: meta.regularMarketPrice,
       previousClose: meta.previousClose,
       percent_change: `${percentChange >= 0 ? "+" : ""}${percentChange.toFixed(2)}%`,
+      isMarketOpen: regularSession
+        ? now >= regularSession.start && now < regularSession.end
+        : undefined,
     };
   } catch (error) {
     console.error(`Error fetching data for ${symbol}:`, error);
