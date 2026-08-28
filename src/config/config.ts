@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export interface Config {
+  coinMarketCap: {
+    apiKey: string;
+  };
   telegram: {
     token: string;
     chatId: string;
@@ -20,6 +23,7 @@ export interface Config {
 
 function validateEnv(): void {
   const requiredVars = [
+    "COINMARKETCAP_API_KEY",
     "TELEGRAM_TOKEN",
     "TELEGRAM_CHAT_ID",
     "EMAIL_USER",
@@ -38,6 +42,9 @@ export function getConfig(): Config {
   validateEnv();
 
   return {
+    coinMarketCap: {
+      apiKey: process.env.COINMARKETCAP_API_KEY!,
+    },
     telegram: {
       token: process.env.TELEGRAM_TOKEN!,
       chatId: process.env.TELEGRAM_CHAT_ID!,

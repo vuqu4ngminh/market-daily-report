@@ -16,6 +16,24 @@ export interface PriceData {
   isMarketOpen?: boolean;
 }
 
+interface CoinMarketCapQuoteResponse {
+  data: Record<
+    "BTC" | "ETH",
+    Array<{
+      quote: {
+        USD: {
+          price: number;
+          percent_change_24h: number;
+        };
+      };
+    }>
+  >;
+  status: {
+    error_code: number;
+    error_message: string | null;
+  };
+}
+
 interface YahooChartResponse {
   chart: {
     result: Array<{
@@ -65,7 +83,68 @@ async function fetchYahooData(symbol: string): Promise<PriceData> {
   }
 }
 
-export async function getMarketData(): Promise<MarketData> {
+async function fetchCoinMarketCapData(
+  apiKey: string
+): Promise<Pick<MarketData, "BTC" | "ETH">> {
+  const url = new URL(
+    "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
+  );
+  url.searchParams.set("symbol", "BTC,ETH");
+  url.searchParams.set("convert", "USD");
+
+  const response = await fetch(url, {
+    headers: {
+      "X-CMC_PRO_API_KEY": apiKey,
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `CoinMarketCap API error: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const json = (await response.json()) as CoinMarketCapQuoteResponse;
+
+  if (json.status.error_code !== 0) {
+    throw new Error(
+      `CoinMarketCap API error ${json.status.error_code}: ${json.status.error_message ?? "Unknown error"}`
+    );
+  }
+
+  const toPriceData = (symbol: "BTC" | "ETH"): PriceData => {
+    const asset = json.data[symbol]?.[0];
+    const quote = asset?.quote.USD;
+
+    if (!quote || !Number.isFinite(quote.price)) {
+      throw new Error(`CoinMarketCap response is missing ${symbol}/USD quote`);
+    }
+
+    const percentChange = quote.percent_change_24h;
+    const previousClose = Number.isFinite(percentChange)
+      ? quote.price / (1 + percentChange / 100)
+      : quote.price;
+
+    return {
+      close: quote.price,
+      previousClose,
+      percent_change: Number.isFinite(percentChange)
+        ? `${percentChange >= 0 ? "+" : ""}${percentChange.toFixed(2)}%`
+        : "N/A",
+      isMarketOpen: true,
+    };
+  };
+
+  return {
+    BTC: toPriceData("BTC"),
+    ETH: toPriceData("ETH"),
+  };
+}
+
+export async function getMarketData(
+  coinMarketCapApiKey: string
+): Promise<MarketData> {
   const symbols = {
     SPX: "^GSPC",
     DJI: "^DJI",
@@ -73,8 +152,6 @@ export async function getMarketData(): Promise<MarketData> {
     BRENT: "BZ=F",
     WTI: "CL=F",
     GOLD: "GC=F",
-    BTC: "BTC-USD",
-    ETH: "ETH-USD",
   };
 
   const results: Partial<MarketData> = {};
@@ -90,6 +167,10 @@ export async function getMarketData(): Promise<MarketData> {
   });
 
   await Promise.all(promises);
+
+  const cryptoData = await fetchCoinMarketCapData(coinMarketCapApiKey);
+  results.BTC = cryptoData.BTC;
+  results.ETH = cryptoData.ETH;
 
   return results as MarketData;
 }

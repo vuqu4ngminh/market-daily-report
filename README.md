@@ -4,7 +4,7 @@ Automatic market daily report sender via Telegram and Email using GitHub Actions
 
 ## Features
 
-- 📊 Fetch real-time market data from Yahoo Finance API
+- 📊 Fetch market data from Yahoo Finance and CoinMarketCap APIs
 - 💬 Send formatted messages to Telegram
 - 📧 Send HTML formatted emails
 - 🤖 Automated scheduling via GitHub Actions
@@ -58,6 +58,7 @@ cp .env.example .env
 Fill in your credentials:
 - `TELEGRAM_TOKEN`: Your Telegram bot token
 - `TELEGRAM_CHAT_ID`: Your Telegram chat ID
+- `COINMARKETCAP_API_KEY`: Your CoinMarketCap API key
 - `EMAIL_USER`: Email account for sending (Gmail recommended)
 - `EMAIL_PASSWORD`: Email account password or app password
 - `EMAIL_RECIPIENT`: Email address to send reports to
@@ -85,6 +86,7 @@ npm run dev
 1. Add secrets to your GitHub repository:
    - `TELEGRAM_TOKEN`
    - `TELEGRAM_CHAT_ID`
+   - `COINMARKETCAP_API_KEY`
    - `EMAIL_USER`
    - `EMAIL_PASSWORD`
    - `EMAIL_RECIPIENT`

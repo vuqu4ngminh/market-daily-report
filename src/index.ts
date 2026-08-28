@@ -12,8 +12,8 @@ async function main(): Promise<void> {
 
     const config = getConfig();
 
-    logger.info("📡 Fetching market data from Yahoo Finance...");
-    const marketData = await getMarketData();
+    logger.info("📡 Fetching market data from Yahoo Finance and CoinMarketCap...");
+    const marketData = await getMarketData(config.coinMarketCap.apiKey);
     logger.info("✅ Market data fetched successfully");
 
     const telegramMessage = formatTelegramMessage(marketData);
