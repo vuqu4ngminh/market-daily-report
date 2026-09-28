@@ -1,4 +1,5 @@
 import { MarketData, PriceData } from "../services/marketData.js";
+import { formatReportTimestamp } from "./reportTimestamp.js";
 
 function formatPrice(item: PriceData | undefined): string {
   if (!item || !item.close) {
@@ -16,16 +17,7 @@ function sectionTitle(title: string, items: Array<PriceData | undefined>): strin
 }
 
 export function formatTelegramMessage(data: MarketData): string {
-  const vietnamDate = new Intl.DateTimeFormat("vi-VN", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
-    .format(new Date())
-    .replace(/\//g, "-");
-
-  return `*CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI - ${vietnamDate}*
+  return `*CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI - ${formatReportTimestamp()}*
 
 *${sectionTitle("Chứng khoán Mỹ", [data.SPX, data.DJI, data.IXIC])}:*
 S&P 500: ${formatPrice(data.SPX)}

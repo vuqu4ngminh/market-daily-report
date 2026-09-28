@@ -1,4 +1,5 @@
 import { MarketData, PriceData } from "../services/marketData.js";
+import { formatReportTimestamp } from "./reportTimestamp.js";
 
 function formatPrice(item: PriceData | undefined): string {
   if (!item || !item.close) {
@@ -51,7 +52,7 @@ export function formatEmailMessage(data: MarketData): string {
       </style>
     </head>
     <body>
-      <h2>CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI</h2>
+      <h2>CẬP NHẬT THỊ TRƯỜNG THẾ GIỚI - ${formatReportTimestamp()}</h2>
       
       <h3>📈 ${sectionTitle("Chứng khoán Mỹ", [data.SPX, data.DJI, data.IXIC])}</h3>
       <p>
